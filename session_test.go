@@ -6,14 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/quic-go/quic-go"
+	"github.com/TugasAkhir-QUIC/quic-go"
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
-//go:generate sh -c "go run go.uber.org/mock/mockgen -package webtransport -destination mock_stream_creator_test.go github.com/quic-go/quic-go/http3 StreamCreator"
-//go:generate sh -c "go run go.uber.org/mock/mockgen -package webtransport -destination mock_stream_test.go github.com/quic-go/quic-go Stream && cat mock_stream_test.go | sed s@protocol\\.StreamID@quic.StreamID@g | sed s@qerr\\.StreamErrorCode@quic.StreamErrorCode@g > tmp.go && mv tmp.go mock_stream_test.go && goimports -w mock_stream_test.go"
+//go:generate sh -c "go run go.uber.org/mock/mockgen -package webtransport -destination mock_connection_test.go github.com/TugasAkhir-QUIC/quic-go Connection && cat mock_connection_test.go | sed s@qerr\\.ApplicationErrorCode@quic.ApplicationErrorCode@g > tmp.go && mv tmp.go mock_connection_test.go && goimports -w mock_connection_test.go"
+//go:generate sh -c "go run go.uber.org/mock/mockgen -package webtransport -destination mock_stream_test.go github.com/TugasAkhir-QUIC/quic-go Stream && cat mock_stream_test.go | sed s@protocol\\.StreamID@quic.StreamID@g | sed s@qerr\\.StreamErrorCode@quic.StreamErrorCode@g > tmp.go && mv tmp.go mock_stream_test.go && goimports -w mock_stream_test.go"
 
 type mockRequestStream struct {
 	*MockStream
@@ -41,7 +41,7 @@ func (s *mockRequestStream) Write(b []byte) (int, error) { return len(b), nil }
 func TestCloseStreamsOnClose(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockSess := NewMockStreamCreator(ctrl)
+	mockSess := NewMockConnection(ctrl)
 	mockSess.EXPECT().Context().Return(context.WithValue(context.Background(), quic.ConnectionTracingKey, uint64(1337)))
 	sess := newSession(42, mockSess, newMockRequestStream(ctrl))
 
@@ -66,7 +66,7 @@ func TestOpenStreamSyncCancel(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSess := NewMockStreamCreator(ctrl)
+	mockSess := NewMockConnection(ctrl)
 	mockSess.EXPECT().Context().Return(context.WithValue(context.Background(), quic.ConnectionTracingKey, uint64(1337)))
 	sess := newSession(42, mockSess, newMockRequestStream(ctrl))
 	defer sess.CloseWithError(0, "")
@@ -101,7 +101,7 @@ func TestAddStreamAfterSessionClose(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSess := NewMockStreamCreator(ctrl)
+	mockSess := NewMockConnection(ctrl)
 	mockSess.EXPECT().Context().Return(context.WithValue(context.Background(), quic.ConnectionTracingKey, uint64(1337)))
 
 	sess := newSession(42, mockSess, newMockRequestStream(ctrl))
@@ -121,7 +121,7 @@ func TestOpenStreamAfterSessionClose(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSess := NewMockStreamCreator(ctrl)
+	mockSess := NewMockConnection(ctrl)
 	mockSess.EXPECT().Context().Return(context.WithValue(context.Background(), quic.ConnectionTracingKey, uint64(1337)))
 	wait := make(chan struct{})
 	streamOpen := make(chan struct{})
@@ -153,7 +153,7 @@ func TestOpenUniStreamAfterSessionClose(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSess := NewMockStreamCreator(ctrl)
+	mockSess := NewMockConnection(ctrl)
 	mockSess.EXPECT().Context().Return(context.WithValue(context.Background(), quic.ConnectionTracingKey, uint64(1337)))
 	wait := make(chan struct{})
 	streamOpen := make(chan struct{})

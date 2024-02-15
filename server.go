@@ -11,9 +11,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/http3"
-	"github.com/quic-go/quic-go/quicvarint"
+	"github.com/TugasAkhir-QUIC/quic-go"
+	"github.com/TugasAkhir-QUIC/quic-go/http3"
+	"github.com/TugasAkhir-QUIC/quic-go/quicvarint"
 )
 
 const (
@@ -184,7 +184,7 @@ func (s *Server) Upgrade(w http.ResponseWriter, r *http.Request) (*Session, erro
 		return nil, errors.New("failed to hijack")
 	}
 	return s.conns.AddSession(
-		hijacker.StreamCreator(),
+		hijacker.Connection(),
 		sID,
 		r.Body.(http3.HTTPStreamer).HTTPStream(),
 	), nil
