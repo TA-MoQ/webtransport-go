@@ -1,4 +1,4 @@
-module github.com/quic-go/webtransport-go
+module github.com/TugasAkhir-QUIC/webtransport-go
 
 go 1.21
 

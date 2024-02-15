@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/TugasAkhir-QUIC/webtransport-go"
 	"io"
 	"net"
 	"net/http"
@@ -15,8 +16,6 @@ import (
 	"sync"
 	"testing"
 	"time"
-
-	"github.com/quic-go/webtransport-go"
 
 	"github.com/TugasAkhir-QUIC/quic-go"
 	"github.com/TugasAkhir-QUIC/quic-go/http3"
