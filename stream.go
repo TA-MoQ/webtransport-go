@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/quic-go/quic-go"
+	"github.com/TugasAkhir-QUIC/quic-go"
 )
 
 const sessionCloseErrorCode quic.StreamErrorCode = 0x170d7b68
@@ -21,6 +21,8 @@ type SendStream interface {
 	CancelWrite(StreamErrorCode)
 
 	SetWriteDeadline(time.Time) error
+
+	SetPriority(int)
 }
 
 type ReceiveStream interface {
@@ -54,6 +56,10 @@ var _ SendStream = &sendStream{}
 
 func newSendStream(str quic.SendStream, hdr []byte, onClose func()) *sendStream {
 	return &sendStream{str: str, streamHdr: hdr, onClose: onClose}
+}
+
+func (s *sendStream) SetPriority(p int) {
+	s.str.SetPriority(p)
 }
 
 func (s *sendStream) maybeSendStreamHeader() (err error) {

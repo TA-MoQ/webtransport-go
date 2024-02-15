@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/quic-go/quic-go"
+	"github.com/TugasAkhir-QUIC/quic-go"
 )
 
 // StreamErrorCode is an error code used for stream termination.

@@ -5,9 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/http3"
-	"github.com/quic-go/quic-go/quicvarint"
+	"github.com/TugasAkhir-QUIC/quic-go"
+	"github.com/TugasAkhir-QUIC/quic-go/quicvarint"
 )
 
 // session is the map value in the conns map
@@ -25,13 +24,13 @@ type sessionManager struct {
 	timeout time.Duration
 
 	mx    sync.Mutex
-	conns map[http3.StreamCreator]map[sessionID]*session
+	conns map[quic.Connection]map[sessionID]*session
 }
 
 func newSessionManager(timeout time.Duration) *sessionManager {
 	m := &sessionManager{
 		timeout: timeout,
-		conns:   make(map[http3.StreamCreator]map[sessionID]*session),
+		conns:   make(map[quic.Connection]map[sessionID]*session),
 	}
 	m.ctx, m.ctxCancel = context.WithCancel(context.Background())
 	return m
@@ -41,7 +40,7 @@ func newSessionManager(timeout time.Duration) *sessionManager {
 // If the WebTransport session has not yet been established,
 // it starts a new go routine and waits for establishment of the session.
 // If that takes longer than timeout, the stream is reset.
-func (m *sessionManager) AddStream(qconn http3.StreamCreator, str quic.Stream, id sessionID) {
+func (m *sessionManager) AddStream(qconn quic.Connection, str quic.Stream, id sessionID) {
 	sess, isExisting := m.getOrCreateSession(qconn, id)
 	if isExisting {
 		sess.conn.addIncomingStream(str)
@@ -65,7 +64,7 @@ func (m *sessionManager) AddStream(qconn http3.StreamCreator, str quic.Stream, i
 	}()
 }
 
-func (m *sessionManager) maybeDelete(qconn http3.StreamCreator, id sessionID) {
+func (m *sessionManager) maybeDelete(qconn quic.Connection, id sessionID) {
 	sessions, ok := m.conns[qconn]
 	if !ok { // should never happen
 		return
@@ -80,7 +79,7 @@ func (m *sessionManager) maybeDelete(qconn http3.StreamCreator, id sessionID) {
 // If the WebTransport session has not yet been established,
 // it starts a new go routine and waits for establishment of the session.
 // If that takes longer than timeout, the stream is reset.
-func (m *sessionManager) AddUniStream(qconn http3.StreamCreator, str quic.ReceiveStream) {
+func (m *sessionManager) AddUniStream(qconn quic.Connection, str quic.ReceiveStream) {
 	idv, err := quicvarint.Read(quicvarint.NewReader(str))
 	if err != nil {
 		str.CancelRead(1337)
@@ -110,7 +109,7 @@ func (m *sessionManager) AddUniStream(qconn http3.StreamCreator, str quic.Receiv
 	}()
 }
 
-func (m *sessionManager) getOrCreateSession(qconn http3.StreamCreator, id sessionID) (sess *session, existed bool) {
+func (m *sessionManager) getOrCreateSession(qconn quic.Connection, id sessionID) (sess *session, existed bool) {
 	m.mx.Lock()
 	defer m.mx.Unlock()
 
@@ -164,7 +163,7 @@ func (m *sessionManager) handleUniStream(str quic.ReceiveStream, sess *session) 
 }
 
 // AddSession adds a new WebTransport session.
-func (m *sessionManager) AddSession(qconn http3.StreamCreator, id sessionID, requestStr quic.Stream) *Session {
+func (m *sessionManager) AddSession(qconn quic.Connection, id sessionID, requestStr quic.Stream) *Session {
 	conn := newSession(id, qconn, requestStr)
 
 	m.mx.Lock()

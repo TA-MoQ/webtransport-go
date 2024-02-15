@@ -9,9 +9,9 @@ import (
 	"net"
 	"sync"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/http3"
-	"github.com/quic-go/quic-go/quicvarint"
+	"github.com/TugasAkhir-QUIC/quic-go"
+	"github.com/TugasAkhir-QUIC/quic-go/http3"
+	"github.com/TugasAkhir-QUIC/quic-go/quicvarint"
 )
 
 // sessionID is the WebTransport Session ID
@@ -62,7 +62,7 @@ func (q *acceptQueue[T]) Chan() <-chan struct{} { return q.c }
 
 type Session struct {
 	sessionID  sessionID
-	qconn      http3.StreamCreator
+	qconn      quic.Connection
 	requestStr quic.Stream
 
 	streamHdr    []byte
@@ -82,7 +82,7 @@ type Session struct {
 	streams streamsMap
 }
 
-func newSession(sessionID sessionID, qconn http3.StreamCreator, requestStr quic.Stream) *Session {
+func newSession(sessionID sessionID, qconn quic.Connection, requestStr quic.Stream) *Session {
 	tracingID := qconn.Context().Value(quic.ConnectionTracingKey).(uint64)
 	ctx, ctxCancel := context.WithCancel(context.WithValue(context.Background(), quic.ConnectionTracingKey, tracingID))
 	c := &Session{

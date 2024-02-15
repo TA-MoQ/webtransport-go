@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/http3"
-	"github.com/quic-go/quic-go/quicvarint"
+	"github.com/TugasAkhir-QUIC/quic-go"
+	"github.com/TugasAkhir-QUIC/quic-go/http3"
+	"github.com/TugasAkhir-QUIC/quic-go/quicvarint"
 )
 
 type Dialer struct {
@@ -111,7 +111,7 @@ func (d *Dialer) Dial(ctx context.Context, urlStr string, reqHdr http.Header) (*
 	}
 	str := rsp.Body.(http3.HTTPStreamer).HTTPStream()
 	conn := d.conns.AddSession(
-		rsp.Body.(http3.Hijacker).StreamCreator(),
+		rsp.Body.(http3.Hijacker).Connection(),
 		sessionID(str.StreamID()),
 		str,
 	)
