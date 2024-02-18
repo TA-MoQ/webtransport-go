@@ -1,9 +1,11 @@
 package webtransport
 
 import (
+	"bytes"
 	"context"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"math/rand"
 	"net"
@@ -29,6 +31,11 @@ type acceptQueue[T any] struct {
 	// There's no explicit limit to the length of the queue, but it is implicitly
 	// limited by the stream flow control provided by QUIC.
 	queue []T
+}
+
+type receiveMessageResult struct {
+	msg []byte
+	err error
 }
 
 func newAcceptQueue[T any]() *acceptQueue[T] {
@@ -411,6 +418,41 @@ func (s *Session) closeWithError(code SessionErrorCode, msg string) (bool /* fir
 		closeWebtransportSessionCapsuleType,
 		b,
 	)
+}
+
+func (s *Session) ReceiveDatagram(ctx context.Context) ([]byte, error) {
+	resultChannel := make(chan receiveMessageResult)
+
+	go func() {
+		msg, err := s.qconn.ReceiveDatagram(ctx)
+		resultChannel <- receiveMessageResult{msg: msg, err: err}
+	}()
+
+	select {
+	case result := <-resultChannel:
+		if result.err != nil {
+			return nil, result.err
+		}
+
+		datastream := bytes.NewReader(result.msg)
+		quarterStreamId, err := quicvarint.Read(datastream)
+		if err != nil {
+			return nil, err
+		}
+
+		return result.msg[quicvarint.Len(quarterStreamId):], nil
+	case <-ctx.Done():
+		return nil, fmt.Errorf("WebTransport stream closed")
+	}
+}
+
+func (s *Session) SendDatagram(msg []byte) error {
+	buf := &bytes.Buffer{}
+
+	// "Quarter Stream ID" (!) of associated request stream, as per https://datatracker.ietf.org/doc/html/draft-ietf-masque-h3-datagram
+	buf.Write(quicvarint.Append(nil, uint64(s.requestStr.StreamID()/4)))
+	buf.Write(msg)
+	return s.qconn.SendDatagram(buf.Bytes())
 }
 
 func (c *Session) ConnectionState() quic.ConnectionState {
