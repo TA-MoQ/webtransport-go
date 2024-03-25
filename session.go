@@ -452,6 +452,8 @@ func (s *Session) SendDatagram(msg []byte) error {
 	// "Quarter Stream ID" (!) of associated request stream, as per https://datatracker.ietf.org/doc/html/draft-ietf-masque-h3-datagram
 	buf.Write(quicvarint.Append(nil, uint64(s.requestStr.StreamID()/4)))
 	buf.Write(msg)
+	s.closeMx.Lock()
+	defer s.closeMx.Unlock()
 	return s.qconn.SendDatagram(buf.Bytes())
 }
 
