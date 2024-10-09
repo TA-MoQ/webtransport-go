@@ -13,7 +13,6 @@ import (
 	_ "embed"
 	"encoding/binary"
 	"fmt"
-	"github.com/TugasAkhir-QUIC/webtransport-go"
 	"io"
 	"log"
 	"math/big"
@@ -21,7 +20,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/TugasAkhir-QUIC/quic-go/http3"
+	"github.com/TA-MoQ/webtransport-go"
+
+	"github.com/TA-MoQ/quic-go/http3"
 )
 
 //go:embed index.html

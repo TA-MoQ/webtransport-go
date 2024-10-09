@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/TugasAkhir-QUIC/quic-go"
+	"github.com/TA-MoQ/quic-go"
 )
 
 const sessionCloseErrorCode quic.StreamErrorCode = 0x170d7b68

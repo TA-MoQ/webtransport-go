@@ -11,9 +11,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/TugasAkhir-QUIC/quic-go"
-	"github.com/TugasAkhir-QUIC/quic-go/http3"
-	"github.com/TugasAkhir-QUIC/quic-go/quicvarint"
+	"github.com/TA-MoQ/quic-go"
+	"github.com/TA-MoQ/quic-go/http3"
+	"github.com/TA-MoQ/quic-go/quicvarint"
 )
 
 const (

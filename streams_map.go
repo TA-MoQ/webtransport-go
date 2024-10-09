@@ -3,7 +3,7 @@ package webtransport
 import (
 	"sync"
 
-	"github.com/TugasAkhir-QUIC/quic-go"
+	"github.com/TA-MoQ/quic-go"
 )
 
 type closeFunc func()
