@@ -10,7 +10,7 @@ require (
 )
 
 require (
-	github.com/TA-MoQ/quic-go v0.0.2 // indirect
+	github.com/TA-MoQ/quic-go v0.0.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
