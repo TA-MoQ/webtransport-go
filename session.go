@@ -457,7 +457,7 @@ func (s *Session) SendDatagram(msg []byte) error {
 	return s.qconn.SendDatagram(buf.Bytes())
 }
 
-func (s *Session) SendDatagramWithPriority(msg []byte, priority uint8) error {
+func (s *Session) SendDatagramWithPriority(msg []byte, priority int) error {
 	buf := &bytes.Buffer{}
 
 	// "Quarter Stream ID" (!) of associated request stream, as per https://datatracker.ietf.org/doc/html/draft-ietf-masque-h3-datagram
